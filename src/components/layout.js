@@ -12,6 +12,8 @@ import { useStaticQuery, graphql } from "gatsby"
 import Header from "./header"
 import "./layout.css"
 
+import PaymentForm from './paymentForm';
+
 const Layout = ({ children }) => {
   const data = useStaticQuery(graphql`
     query SiteTitleQuery {
@@ -34,6 +36,7 @@ const Layout = ({ children }) => {
         }}
       >
         <main>{children}</main>
+        <PaymentForm paymentForm={ window.SqPaymentForm } />
         <footer>
           © {new Date().getFullYear()}, Built with
           {` `}
