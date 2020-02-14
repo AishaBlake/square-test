@@ -1,71 +1,130 @@
-import React, { Component } from "react";
+import React, { Component } from "react"
+import "./paymentForm.css"
+
+const styles = {
+  name: {
+    verticalAlign: "top",
+    display: "none",
+    margin: 0,
+    border: "none",
+    fontSize: "16px",
+    fontFamily: "Helvetica Neue",
+    padding: "16px",
+    color: "#373F4A",
+    backgroundColor: "transparent",
+    lineHeight: "1.15em",
+    placeholderColor: "#000",
+    _webkitFontSmoothing: "antialiased",
+    _mozOsxFontSmoothing: "grayscale",
+  },
+  leftCenter: {
+    float: "left",
+    textAlign: "center",
+  },
+  blockRight: {
+    display: "block",
+    float: "right",
+  },
+  center: {
+    textAlign: "center",
+  },
+}
+
+export const loadSquareSdk = () => {
+  return new Promise((resolve, reject) => {
+    const sqPaymentScript = document.createElement("script")
+    sqPaymentScript.src = "https://js.squareup.com/v2/paymentform"
+    sqPaymentScript.crossorigin = "anonymous"
+    sqPaymentScript.onload = () => {
+      resolve()
+    }
+    sqPaymentScript.onerror = () => {
+      reject(`Failed to load ${sqPaymentScript.src}`)
+    }
+    document.getElementsByTagName("head")[0].appendChild(sqPaymentScript)
+  })
+}
 
 export default class PaymentForm extends Component {
   constructor(props) {
-    super(props);
+    super(props)
     this.state = {
       cardBrand: "",
       nonce: undefined,
       googlePay: false,
       applePay: false,
-      masterpass: false
-    };
-    this.requestCardNonce = this.requestCardNonce.bind(this);
+      masterpass: false,
+    }
+    this.requestCardNonce = this.requestCardNonce.bind(this)
   }
 
   requestCardNonce() {
-    this.paymentForm.requestCardNonce();
+    this.paymentForm.requestCardNonce()
   }
 
   componentDidMount() {
     const config = {
-      applicationId: "sq0idp-HtE12e0gfJV7pShL2-y94Q",
+      applicationId: "sq0idp-rARHLPiahkGtp6mMz2OeCA",
       locationId: "GMT96A77XABR1",
       inputClass: "sq-input",
       autoBuild: false,
+      inputStyles: [
+        {
+          fontSize: "16px",
+          fontFamily: "Helvetica Neue",
+          padding: "16px",
+          color: "#373F4A",
+          backgroundColor: "transparent",
+          lineHeight: "1.15em",
+          placeholderColor: "#000",
+          _webkitFontSmoothing: "antialiased",
+          _mozOsxFontSmoothing: "grayscale",
+        },
+      ],
       applePay: {
-        elementId: "sq-apple-pay"
+        elementId: "sq-apple-pay",
       },
       masterpass: {
-        elementId: "sq-masterpass"
+        elementId: "sq-masterpass",
       },
       googlePay: {
-        elementId: "sq-google-pay"
+        elementId: "sq-google-pay",
       },
       cardNumber: {
         elementId: "sq-card-number",
-        placeholder: "• • • •  • • • •  • • • •  • • • •"
+        placeholder: "• • • •  • • • •  • • • •  • • • •",
       },
       cvv: {
         elementId: "sq-cvv",
-        placeholder: "CVV"
+        placeholder: "CVV",
       },
       expirationDate: {
         elementId: "sq-expiration-date",
-        placeholder: "MM/YY"
+        placeholder: "MM/YY",
       },
       postalCode: {
         elementId: "sq-postal-code",
-        placeholder: "Zip"
+        placeholder: "Zip",
       },
       callbacks: {
         methodsSupported: methods => {
+          console.log(methods)
           if (methods.googlePay) {
             this.setState({
-              googlePay: methods.googlePay
-            });
+              googlePay: methods.googlePay,
+            })
           }
           if (methods.applePay) {
             this.setState({
-              applePay: methods.applePay
-            });
+              applePay: methods.applePay,
+            })
           }
           if (methods.masterpass) {
             this.setState({
-              masterpass: methods.masterpass
-            });
+              masterpass: methods.masterpass,
+            })
           }
-          return;
+          return
         },
         createPaymentRequest: () => {
           return {
@@ -76,69 +135,69 @@ export default class PaymentForm extends Component {
             total: {
               label: "MERCHANT NAME",
               amount: "100",
-              pending: false
+              pending: false,
             },
             lineItems: [
               {
                 label: "Subtotal",
                 amount: "100",
-                pending: false
-              }
-            ]
-          };
+                pending: false,
+              },
+            ],
+          }
         },
-        cardNonceResponseReceived: (errors, nonce) => {
+        cardNonceResponseReceived: (errors, nonce, cardData) => {
           if (errors) {
             // Log errors from nonce generation to the Javascript console
-            console.log("Encountered errors:");
+            console.log("Encountered errors:")
             errors.forEach(function(error) {
-              console.log("  " + error.message);
-            });
-
-            return;
+              console.log("  " + error.message)
+            })
+            return
           }
           this.setState({
-            nonce: nonce
-          });
+            nonce: nonce,
+          })
+          console.log(nonce)
         },
         unsupportedBrowserDetected: () => {},
         inputEventReceived: inputEvent => {
           switch (inputEvent.eventType) {
             case "focusClassAdded":
-              break;
+              break
             case "focusClassRemoved":
-              break;
+              break
             case "errorClassAdded":
               document.getElementById("error").innerHTML =
-                "Please fix card information errors before continuing.";
-              break;
+                "Please fix card information errors before continuing."
+              break
             case "errorClassRemoved":
-              document.getElementById("error").style.display = "none";
-              break;
+              document.getElementById("error").style.display = "none"
+              break
             case "cardBrandChanged":
               if (inputEvent.cardBrand !== "unknown") {
                 this.setState({
-                  cardBrand: inputEvent.cardBrand
-                });
+                  cardBrand: inputEvent.cardBrand,
+                })
               } else {
                 this.setState({
-                  cardBrand: ""
-                });
+                  cardBrand: "",
+                })
               }
-              break;
+              break
             case "postalCodeChanged":
-              break;
+              break
             default:
-              break;
+              break
           }
         },
         paymentFormLoaded: function() {
-          document.getElementById("name").style.display = "inline-flex";
-        }
-      }
-    };
-    this.paymentForm = new this.props.paymentForm(config);
-    this.paymentForm.build();
+          document.getElementById("name").style.display = "inline-flex"
+        },
+      },
+    }
+    this.paymentForm = new this.props.paymentForm(config)
+    this.paymentForm.build()
   }
 
   render() {
@@ -166,23 +225,26 @@ export default class PaymentForm extends Component {
 
           <div id="sq-ccbox">
             <p>
-              <span> Enter Card Info Below </span>
-              <span>
+              <span style={styles.leftCenter}>Enter Card Info Below </span>
+              <span style={styles.blockRight}>
                 {this.state.cardBrand.toUpperCase()}
               </span>
             </p>
             <div id="cc-field-wrapper">
-              <div id="sq-card-number" />
+              <label>Card Number<div id="sq-card-number" /></label>
               <input type="hidden" id="card-nonce" name="nonce" />
-              <div id="sq-expiration-date" />
-              <div id="sq-cvv" />
+              <label>Expiration Date<div id="sq-expiration-date" /></label>
+              <label>CVV<div id="sq-cvv" /></label>
             </div>
-            <input
-              id="name"
-              type="text"
-              placeholder="Name"
-            />
-            <div id="sq-postal-code" />
+            <label>Name
+              <input
+                id="name"
+                style={styles.name}
+                type="text"
+                placeholder="Name"
+              />
+            </label>
+            <label>Postal Code<div id="sq-postal-code" /></label>
           </div>
           <button
             className="button-credit-card"
@@ -191,8 +253,8 @@ export default class PaymentForm extends Component {
             Pay
           </button>
         </div>
-        <p id="error" />
+        <p style={styles.center} id="error" />
       </div>
-    );
+    )
   }
 }
